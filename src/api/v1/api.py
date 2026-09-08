@@ -17,10 +17,10 @@ app = FastAPI(title="Store Assistant API")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerencia o ciclo de vida da API."""
-    # 1. Cria a nossa tabela personalizada de sessões (se não existir)
+    # 1. Creates our personalized table of sessons
     init_db()
     
-    # 2. Abre o Pool de Conexões Assíncronas para o LangGraph
+    # 2. Opens the pool of assynchronous connections to the LangGraph
     connection_kwargs = {
             "autocommit": True,
             "prepare_threshold": 0,
@@ -32,11 +32,11 @@ async def lifespan(app: FastAPI):
         kwargs=connection_kwargs
     ) as pool:
         
-        # 3. Prepara o Checkpointer e cria as tabelas do LangGraph (checkpoints, checkpoint_blobs...)
+        # 3. Prepares the Checkpointer and creates the LangGraph tables 
         checkpointer = AsyncPostgresSaver(pool)
         await checkpointer.setup()
 
-        # 4. Inicia o MCP e anexa o grafo de IA ao estado global do FastAPI
+        # 4. Initiates the MCP and attaches the AI graph to the global state to the FastAPI
         async with get_mcp_tools_context() as mcp_tools:
             
             app.state.workflow_app = build_store_virtual_assistant_workflow(mcp_tools, checkpointer)
@@ -44,8 +44,6 @@ async def lifespan(app: FastAPI):
             
             yield  # A API recebe requisições enquanto estiver neste yield
 
-# Atribui o lifespan configurado
 app.router.lifespan_context = lifespan
 
-# Registra os seus endpoints
 app.include_router(conversation_router, prefix=settings.api_base)

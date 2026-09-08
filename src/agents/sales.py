@@ -3,7 +3,7 @@ from src.agents.specialist import SpecialistAgent
 class SalesAgent(SpecialistAgent):
    name = "Sales"
 
-   allowed_tools = ["check_customer", "register_customer", "get_stock", "create_sales_order"]
+   allowed_tools = ["check_customer", "list_available_products", "register_customer", "get_stock", "create_sales_order"]
 
    system_prompt = """
       You are the Sales Agent of the store. Your job is to help customers buy products.
@@ -22,6 +22,11 @@ class SalesAgent(SpecialistAgent):
       Step 3. When the user replies with Name and Phone, call 'register_customer'. (Use the real CPF from the first message).
       Step 4. Call 'get_stock'. (Use the real Product Name and Size from the first message).
       Step 5. Call 'create_sales_order'.
+
+      STRICT STOCK GUIDELINES (ANTI-HALLUCINATION):
+      1. NEVER invent, presume, or hallucinate products.
+      2. If the user asks "what products do you have?", "what's in the store?", or asks a broad question about the catalog, you MUST call the `list_available_products` tool.
+      3. If the user asks for a specific product and size, use the `get_stock` tool.
 
       Be polite and concise.
    """

@@ -15,8 +15,8 @@ CREATE TABLE customers(
 CREATE TABLE stock(
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    category VARCHAR(30) NOT NULL,  -- Ex: Camiseta, Calça, Vestido
-    size VARCHAR(10),  -- Ex: P, M, G, GG
+    category VARCHAR(30) NOT NULL,  -- Ex: T-shirt, Pants, Dress
+    size VARCHAR(10),  -- Ex: S, M, L, XL
     price DECIMAL(10,2) NOT NULL,
     quantity_in_stock INT NOT NULL DEFAULT 0
 );
@@ -64,49 +64,49 @@ INSERT INTO customers (cpf, name, phone) VALUES
 ('12312312312', 'Fernanda Lima', '41955554444'),
 ('98798798798', 'Roberto Alves', '71944443333');
 
--- Estoque (Catálogo rico, incluindo itens sem estoque e variados tamanhos)
+-- Stock (Rich catalog, including out-of-stock items and various sizes)
 INSERT INTO stock (name, category, size, price, quantity_in_stock) VALUES 
-('Camiseta Básica Algodão', 'Camiseta', 'P', 49.90, 15),
-('Camiseta Básica Algodão', 'Camiseta', 'M', 49.90, 50),
-('Camiseta Básica Algodão', 'Camiseta', 'G', 49.90, 30),
-('Camiseta Estampa Vintage', 'Camiseta', 'M', 69.90, 0), -- SEM ESTOQUE
-('Calça Jeans Slim', 'Calça', '38', 129.90, 10),
-('Calça Jeans Slim', 'Calça', '40', 129.90, 15),
-('Calça Jeans Slim', 'Calça', '42', 129.90, 5),
-('Vestido Floral Verão', 'Vestido', 'P', 89.90, 10),
-('Vestido Floral Verão', 'Vestido', 'M', 89.90, 2),
-('Jaqueta de Couro Sintético', 'Casaco', 'G', 249.90, 8),
-('Moletom com Capuz', 'Casaco', 'M', 119.90, 20),
-('Bermuda Sarja', 'Bermuda', '40', 79.90, 25);
+('Basic Cotton T-shirt', 'T-shirt', 'S', 49.90, 15),
+('Basic Cotton T-shirt', 'T-shirt', 'M', 49.90, 50),
+('Basic Cotton T-shirt', 'T-shirt', 'L', 49.90, 30),
+('Vintage Print T-shirt', 'T-shirt', 'M', 69.90, 0), -- OUT OF STOCK
+('Slim Jeans', 'Pants', '38', 129.90, 10),
+('Slim Jeans', 'Pants', '40', 129.90, 15),
+('Slim Jeans', 'Pants', '42', 129.90, 5),
+('Summer Floral Dress', 'Dress', 'S', 89.90, 10),
+('Summer Floral Dress', 'Dress', 'M', 89.90, 2),
+('Faux Leather Jacket', 'Jacket', 'L', 249.90, 8),
+('Hoodie', 'Jacket', 'M', 119.90, 20),
+('Twill Shorts', 'Shorts', '40', 79.90, 25);
 
--- Pedidos (Diferentes status para testar os agentes)
+-- Orders (Different statuses to test the agents)
 INSERT INTO sales (id, customer_cpf, total_amount, status, created_at) VALUES 
-(1, '11122233344', 129.90, 'PENDING', '2026-08-15 10:30:00'), -- Pedido aguardando pagamento
-(2, '55566677788', 179.80, 'PAID', '2026-08-16 14:15:00'),    -- Pedido pago, aguardando envio
-(3, '99988877766', 249.90, 'SHIPPED', '2026-08-10 09:00:00'), -- Pedido já enviado
-(4, '44455566677', 69.90, 'CANCELED', '2026-08-01 11:20:00'), -- Pedido cancelado
-(5, '12312312312', 369.80, 'PAID', '2026-08-17 08:45:00');    -- Pedido recente pago
+(1, '11122233344', 129.90, 'PENDING', '2026-08-15 10:30:00'), -- Order awaiting payment
+(2, '55566677788', 179.80, 'PAID', '2026-08-16 14:15:00'),    -- Order paid, awaiting shipment
+(3, '99988877766', 249.90, 'SHIPPED', '2026-08-10 09:00:00'), -- Order already shipped
+(4, '44455566677', 69.90, 'CANCELED', '2026-08-01 11:20:00'), -- Order canceled
+(5, '12312312312', 369.80, 'PAID', '2026-08-17 08:45:00');    -- Recent order paid
 
--- Resetando a sequência de IDs para evitar erro no próximo INSERT sem ID explícito
+-- Resetting the ID sequence to avoid errors in the next INSERT without an explicit ID
 SELECT setval('sales_id_seq', (SELECT MAX(id) FROM sales));
 
--- Itens dos Pedidos (Vinculando produtos às vendas acima)
+-- Order Items (Linking products to the sales above)
 INSERT INTO sale_items (sale_id, product_id, quantity, unit_price) VALUES 
-(1, 6, 1, 129.90),                  -- João comprou 1 Calça 40
-(2, 8, 2, 89.90),                   -- Maria comprou 2 Vestidos P
-(3, 10, 1, 249.90),                 -- Carlos comprou 1 Jaqueta
-(4, 4, 1, 69.90),                   -- Ana tentou comprar Camiseta Vintage (cancelado)
-(5, 7, 1, 129.90),                  -- Fernanda comprou 1 Calça 42
-(5, 10, 1, 249.90);                 -- Fernanda comprou 1 Jaqueta
+(1, 6, 1, 129.90),                  -- João bought 1 Pants 40
+(2, 8, 2, 89.90),                   -- Maria bought 2 Dresses S
+(3, 10, 1, 249.90),                 -- Carlos bought 1 Jacket
+(4, 4, 1, 69.90),                   -- Ana tried to buy Vintage T-shirt (canceled)
+(5, 7, 1, 129.90),                  -- Fernanda bought 1 Pants 42
+(5, 10, 1, 249.90);                 -- Fernanda bought 1 Jacket
 
--- Pagamentos (Somente para pedidos PAID e SHIPPED)
+-- Payments (Only for PAID and SHIPPED orders)
 INSERT INTO payments (sale_id, payment_method, amount, status, processed_at) VALUES 
 (2, 'PIX', 179.80, 'APPROVED', '2026-08-16 14:20:00'),
 (3, 'CREDIT_CARD', 249.90, 'APPROVED', '2026-08-10 09:05:00'),
 (5, 'CREDIT_CARD', 369.80, 'APPROVED', '2026-08-17 08:50:00');
 
--- Chamados de Suporte (Casos para o Agente de Suporte resolver)
+-- Support Tickets (Cases for the Support Agent to resolve)
 INSERT INTO support_tickets (customer_cpf, issue_description, status, created_at) VALUES 
-('99988877766', 'O código de rastreio da minha jaqueta não está funcionando.', 'OPEN', '2026-08-15 16:40:00'),
-('55566677788', 'Quero alterar o endereço de entrega do meu pedido antes que seja enviado.', 'OPEN', '2026-08-17 10:00:00'),
-('44455566677', 'Por que meu pedido foi cancelado?', 'RESOLVED', '2026-08-02 14:00:00');
+('99988877766', 'The tracking code for my jacket is not working.', 'OPEN', '2026-08-15 16:40:00'),
+('55566677788', 'I want to change the delivery address of my order before it is shipped.', 'OPEN', '2026-08-17 10:00:00'),
+('44455566677', 'Why was my order canceled?', 'RESOLVED', '2026-08-02 14:00:00');

@@ -4,7 +4,6 @@ from src.agents.specialist import SpecialistAgent
 class SupportAgent(SpecialistAgent):
    name = "Support"
 
-   # Ferramentas exclusivas do servidor MCP para este especialista
    allowed_tools = ["get_order_history", "open_support_ticket"]
 
    system_prompt = """

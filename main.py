@@ -9,10 +9,10 @@ from src.core.config import settings
 print(f"DEBUG URL: {settings.mcp_server_url}")
 
 async def main():
-    # 1. Abre a sessão com o banco/MCP. Ela fica viva enquanto estivermos dentro deste bloco.
+    # 1. Opens a MCP session. It remains active as long as we are within this block.
     async with get_mcp_tools_context() as mcp_tools:
 
-        # 2. Constrói a IA injetando as ferramentas
+        # 2. Builds the AI injecting the tools
         app = build_store_virtual_assistant_workflow(mcp_tools)
         nova_thread = str(uuid.uuid4())
         config = {"configurable": {"thread_id": nova_thread}}
@@ -24,25 +24,24 @@ async def main():
             if user_input.lower() in ['exit', 'quit']:
                 break
 
-            print("\n🔍 [DEBUG] Iniciando processamento...")
+            print("\n🔍 [DEBUG] Starting processing...")
 
             try:
-                # 🟢 SUBSTITUÍMOS O .ainvoke PELO .astream
                 async for event in app.astream(
                     {"messages": [("user", user_input)]}, 
                     config=config, 
                     stream_mode="updates"
                 ):
-                    # O event é um dicionário onde a chave é o nome do nó que acabou de rodar
+                    # The event is a dictionary which the key is the name of the node that just ran
                     for node_name, state_update in event.items():
-                        print(f"  ➡️  Nó concluído: [{node_name}]")
+                        print(f"  ➡️  Node completed: [{node_name}]")
 
-                        # Se o nó gerou uma mensagem, a gente imprime
+                        # If the node generated a message, it displays
                         if "messages" in state_update:
                             ultima_msg = state_update["messages"][-1]
 
-                            print(f"      Tipo: {type(ultima_msg).__name__}")
-                            print(f"      Conteúdo: {ultima_msg.content}")
+                            print(f"      Type: {type(ultima_msg).__name__}")
+                            print(f"      Content: {ultima_msg.content}")
 
                             if getattr(ultima_msg, "tool_calls", None):
                                 for tool_call in ultima_msg.tool_calls:
@@ -50,8 +49,8 @@ async def main():
                                     print(f"         Args: {tool_call['args']}")
 
             except Exception as e:
-                print(f"\n❌ [ERRO] O fluxo quebrou com o erro: {e}")
+                print(f"\n❌ [ERROR] The flow broke down due to the error: {e}")
 
-# Roda o sistema
+# Runs the system
 if __name__ == "__main__":
     asyncio.run(main())

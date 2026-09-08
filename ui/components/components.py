@@ -26,7 +26,7 @@ def render_sidebar(api_client):
 
             if st.button(f"💬 {conv['title']}", key=conv["id"], type=btn_type, use_container_width=True):
                 st.session_state.thread_id = conv["id"]
-                st.session_state.messages = []  # In production, we would look up the API history
+                st.session_state.messages = []
                 st.rerun()
 
 def render_thought_process(node_name: str, content: str):

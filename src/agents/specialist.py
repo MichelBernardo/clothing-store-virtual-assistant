@@ -1,4 +1,4 @@
-from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
 
 from src.core.config import settings
@@ -13,9 +13,9 @@ class SpecialistAgent:
 
         my_tools = [t for t in all_mcp_tools if t.name in self.allowed_tools]
 
-        llm = ChatNVIDIA(
+        llm = ChatGroq(
             model=settings.model_name,
-            api_key=settings.nvidia_api_key,
+            api_key=settings.groq_api_key,
             temperature=0.2,
             timeout=360
         )

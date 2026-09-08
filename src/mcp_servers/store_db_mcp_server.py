@@ -44,6 +44,29 @@ def check_customer(cpf: str) -> str:
     return result
 
 @server.tool()
+def list_available_products() -> str:
+    """
+    Lists all available products and categories in the store that are currently in stock.
+    Use this tool ONLY when the user asks a broad question like "what products do you have?", 
+    "show me the catalog", or "what do you sell?".
+    """
+    # 🟢 USAMOS O STRING_AGG PARA AGRUPAR OS TAMANHOS EM UMA STRING
+    query = """
+        SELECT category, name, price, STRING_AGG(size, ', ') as available_sizes
+        FROM stock 
+        WHERE quantity_in_stock > 0 
+        GROUP BY category, name, price
+        ORDER BY category, name;
+    """
+    
+    result = execute_sql_command(query)
+    
+    if result == "[]":
+        return "No products are currently in stock."
+    
+    return result
+
+@server.tool()
 def register_customer(cpf: str, name: str, phone: str) -> str:
     """
     Registers a new customer in the database.
@@ -228,4 +251,4 @@ def open_support_ticket(customer_cpf: str, issue_description: str) -> str:
 
 
 if __name__ == "__main__":
-    server.run(transport="sse", port=8080)
+    server.run(transport="sse", host="0.0.0.0", port=8080)

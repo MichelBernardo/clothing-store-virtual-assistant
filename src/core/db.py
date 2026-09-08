@@ -4,7 +4,7 @@ from src.core.config import settings
 
 
 def init_db():
-    """Cria a tabela de sessões caso não exista."""
+    """Create the connections table if doesn't exists."""
     conn = psycopg2.connect(settings.database_url)
     cur = conn.cursor()
     cur.execute("""
@@ -19,7 +19,7 @@ def init_db():
     conn.close()
 
 def get_all_sessions():
-    """Retorna todas as conversas ordenadas pelas mais recentes."""
+    """Returns all conversations sorted by most recent."""
     conn = psycopg2.connect(settings.database_url)
     cur = conn.cursor()
     cur.execute("SELECT thread_id, title FROM chat_sessions ORDER BY created_at DESC;")
@@ -29,7 +29,7 @@ def get_all_sessions():
     return [{"id": r[0], "title": r[1]} for r in rows]
 
 def save_session(thread_id: str, title: str):
-    """Salva uma nova sessão. Se já existir, ignora."""
+    """Saves a new session. If alredy exists, ignores."""
     conn = psycopg2.connect(settings.database_url)
     cur = conn.cursor()
     cur.execute("""

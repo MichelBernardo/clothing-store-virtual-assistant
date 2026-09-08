@@ -1,6 +1,6 @@
 from typing import Literal
 from pydantic import BaseModel, Field
-from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage
 
@@ -14,9 +14,9 @@ class Routing(BaseModel):
 
 class SupervisorAgent:
     def __init__(self):
-        llm = ChatNVIDIA(
+        llm = ChatGroq(
             model=settings.model_name,
-            api_key=settings.nvidia_api_key,
+            api_key=settings.groq_api_key,
             temperature=0.1,
             timeout=360
         )
@@ -51,15 +51,12 @@ class SupervisorAgent:
 
     def __call__(self, state: dict) -> dict:
         """
-        Processa o estado atual e retorna o destino.
+        Processes the current state and returns the destiny.
         """
-        # 🟢 TRAVA DETERMINÍSTICA:
-        # Se a última mensagem for da IA, obriga a devolver para o usuário.
         ultima_mensagem = state["messages"][-1]
         if isinstance(ultima_mensagem, AIMessage):
             return {"next_agent": "FINISH"}
 
-        # Se a última mensagem for do humano, deixa o LLM decidir quem vai resolver:
         routing_decision = self.chain.invoke({"messages": state["messages"]})
 
         return {
